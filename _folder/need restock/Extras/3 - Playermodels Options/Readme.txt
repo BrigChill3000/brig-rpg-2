@@ -1,0 +1,1 @@
+Once you have chosen any of these options, then copy the "models" folder and then paste it into the svencoop_addon folder.

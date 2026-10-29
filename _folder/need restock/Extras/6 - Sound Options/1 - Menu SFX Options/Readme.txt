@@ -1,0 +1,1 @@
+Once you choose any option of your liking, copy the "sound" folder and past it into the svencoop_addon folder.

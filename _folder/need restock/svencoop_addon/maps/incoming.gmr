@@ -1,0 +1,10 @@
+globalmodellist ../../maps/incoming.gmr
+
+"models/v_357.mdl"    "models/bmt/eagle/v_357.mdl"
+"models/w_357.mdl"    "models/bmt/eagle/w_357.mdl"
+"models/p_357.mdl"    "models/bmt/eagle/p_357.mdl"
+"models/w_357ammobox.mdl"    "models/bmt/eagle/w_357ammobox.mdl"
+
+"models/v_crowbar.mdl"    "models/bmt/crowbar/v_crowbar.mdl"
+"models/w_crowbar.mdl"    "models/bmt/crowbar/w_crowbar.mdl"
+"models/p_crowbar.mdl"    "models/bmt/crowbar/p_crowbar.mdl"
