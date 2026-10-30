@@ -3,3 +3,14 @@
 !lib/public/SDL2.lib
 !utils/procinfo/lib/win32_vc6/procinfo.lib
 !utils/vgui/lib/win32_vc6/vgui.lib
+
+# Generated builds and release archives
+/dist/
+/linux/release/
+/linux/debug/
+/projects/vs2019/Release/
+/projects/vs2019/Debug/
+/_folder/brig/cl_dlls/
+/_folder/brig/dlls/
+__pycache__/
+*.pyc

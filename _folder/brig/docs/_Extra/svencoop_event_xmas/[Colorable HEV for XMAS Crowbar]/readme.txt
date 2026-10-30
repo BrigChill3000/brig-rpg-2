@@ -1,0 +1,1 @@
+Copy the "models" folder and past it inside the "svencoop_event_xmas" folder.

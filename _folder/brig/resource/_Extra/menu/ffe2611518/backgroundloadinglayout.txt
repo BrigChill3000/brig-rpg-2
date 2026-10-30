@@ -1,0 +1,17 @@
+resolution   800   600
+
+resource/background/800_600_0_0.tga      scaled      0   0
+resource/background/800_600_0_1.tga      scaled      256   0
+resource/background/800_600_0_2.tga      scaled      512   0
+resource/background/800_600_0_3.tga      scaled      768   0
+
+resource/background/800_600_1_0.tga      scaled      0   256
+resource/background/800_600_1_1.tga      scaled      256   256
+resource/background/800_600_1_2.tga      scaled      512   256
+resource/background/800_600_1_3.tga      scaled      768   256
+
+resource/background/800_600_2_0.tga      scaled      0   512
+resource/background/800_600_2_1.tga      scaled      256   512
+resource/background/800_600_2_2.tga      scaled      512   512
+resource/background/800_600_2_3.tga      scaled      768   512
+

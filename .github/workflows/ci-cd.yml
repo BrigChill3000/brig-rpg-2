@@ -1,6 +1,12 @@
 name: CI/CD
 
-on: [push, pull_request]
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   linux:
@@ -22,6 +28,13 @@ jobs:
         run: |
           cd linux
           make COMPILER=${{ matrix.compiler }} CFG=release -j2
+
+      - name: Test legacy engine API bounds
+        run: |
+          ${{ matrix.compiler }} -m32 -std=c++17 -Iengine -Icommon -Ipublic -Ipm_shared -Idlls tests/legacy_client_api.cpp -o /tmp/brig-legacy-api
+          /tmp/brig-legacy-api
+          ${{ matrix.compiler }} -m32 -std=c++17 -Iengine -Icommon -Ipublic -Ipm_shared -Idlls tests/legacy_server_api.cpp -o /tmp/brig-legacy-server-api
+          /tmp/brig-legacy-server-api
       
       - name: Deploy
         uses: actions/upload-artifact@v4
@@ -35,7 +48,7 @@ jobs:
       
   win32:
     name: Win32
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,7 +59,31 @@ jobs:
           msbuild-architecture: x86
       
       - name: Build
-        run: msbuild projects/vs2019/projects.sln -t:rebuild -property:Configuration=Release -maxcpucount:2
+        run: msbuild projects/vs2019/projects.sln -t:rebuild -p:Configuration=Release -p:Platform=Win32 -p:PlatformToolset=v143 -p:PostBuildEventUseInBuild=false -maxcpucount:2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Test asset policy and validate the mod
+        run: |
+          python -m unittest discover -s tests -v
+          python tools/validate_brig.py
+
+      - name: Build and CRC-check installable mod ZIP
+        run: |
+          python tools/package_brig.py --client projects/vs2019/Release/hl_cdll/client.dll --server projects/vs2019/Release/hldll/hl.dll --version "vci-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" --commit "$env:GITHUB_SHA"
+
+      - name: Upload installable mod
+        uses: actions/upload-artifact@v4
+        with:
+          name: brig-ci-windows-x86
+          path: |
+            dist/*.zip
+            dist/*.sha256
+          compression-level: 0
+          if-no-files-found: error
       
       - name: Deploy
         uses: actions/upload-artifact@v4
@@ -57,4 +94,17 @@ jobs:
             projects/vs2019/Release/hl_cdll/client.pdb
             projects/vs2019/Release/hldll/hl.dll
             projects/vs2019/Release/hldll/hl.pdb
+
+  assets:
+    name: Asset integrity and policy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -v
+      - run: python tools/validate_brig.py
+      - name: Confirm source staging folder was removed
+        run: test ! -e '_folder/need restock'
       

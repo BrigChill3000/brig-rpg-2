@@ -1,0 +1,11 @@
+// brig is a separate mod directory; the Steam Half-Life engine is required.
+game "Brig RPG 2"
+startmap "c0a0"
+trainmap "t0a0"
+mpentity "info_player_deathmatch"
+gamedll "dlls\hl.dll"
+type "both"
+secure "1"
+cldll "1"
+version "1.0"
+edicts "900"

@@ -1,0 +1,5 @@
+"models/v_crowbar.mdl"	"models/tu3sday/v_knife.mdl"
+"models/w_crowbar.mdl"	"models/opfor/w_knife.mdl"
+"models/p_crowbar.mdl"	"models/opfor/p_knife.mdl"
+
+"models/hgrunt.mdl"	"models/tu3sday/im_grunt.mdl"

@@ -1,0 +1,10 @@
+resolution   640   480
+
+resource/background/640_480_0_0.tga      scaled      0   0
+resource/background/640_480_0_1.tga      scaled      256   0
+resource/background/640_480_0_2.tga      scaled      512   0
+
+resource/background/640_480_1_0.tga      scaled      0   256
+resource/background/640_480_1_1.tga      scaled      256   256
+resource/background/640_480_1_2.tga      scaled      512   256
+
