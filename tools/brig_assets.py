@@ -132,8 +132,31 @@ def pe_check(path: Path, required_exports: tuple[str, ...]):
     flags = struct.unpack_from("<H", data, pe + 22)[0]
     if not flags & 0x2000 or struct.unpack_from("<H", data, pe + 24)[0] != 0x10B:
         raise ValueError(f"{path}: expected a PE32 DLL")
-    # Export names are also checked after the linker has produced the DLL; never
-    # accept an empty placeholder or a Sven/CS game binary as a release payload.
+    sections = struct.unpack_from("<H", data, pe + 6)[0]
+    optional_size = struct.unpack_from("<H", data, pe + 20)[0]
+    section_table = pe + 24 + optional_size
+
+    def file_offset(rva: int) -> int:
+        for i in range(sections):
+            pos = section_table + i * 40
+            virtual_size, address, raw_size, raw_offset = struct.unpack_from("<4I", data, pos + 8)
+            if address <= rva < address + max(virtual_size, raw_size):
+                result = raw_offset + rva - address
+                if result < len(data):
+                    return result
+        raise ValueError(f"{path}: export RVA outside DLL sections")
+
+    export_rva = struct.unpack_from("<I", data, pe + 24 + 96)[0]
+    exports_offset = file_offset(export_rva)
+    count = struct.unpack_from("<I", data, exports_offset + 24)[0]
+    if count > 65536:
+        raise ValueError(f"{path}: invalid export count")
+    name_table = file_offset(struct.unpack_from("<I", data, exports_offset + 32)[0])
+    names = set()
+    for i in range(count):
+        offset = file_offset(struct.unpack_from("<I", data, name_table + i * 4)[0])
+        names.add(cstring(data[offset:offset + 256]))
+    # Inspect the export directory, rather than trusting embedded text strings.
     for export in required_exports:
-        if export.encode() + b"\0" not in data:
+        if export not in names:
             raise ValueError(f"{path}: missing export {export}")
