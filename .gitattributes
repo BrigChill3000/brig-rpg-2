@@ -10,3 +10,20 @@
 Makefile text eol=lf
 Makefile.* text eol=lf
 *.sh text eol=lf
+
+# Asset manifests record exact bytes. Windows autocrlf must not rewrite
+# resources, preserved originals, startup templates or the network schema.
+/_folder/** -text
+/tools/brig-defaults/** -text
+/network/delta.lst -text
+
+# Compiled GoldSource resources must never be treated as text patches.
+*.mdl binary
+*.spr binary
+*.bsp binary
+*.wad binary
+*.wav binary
+*.ogg binary
+*.mp3 binary
+*.tga binary
+*.bmp binary

@@ -46,6 +46,10 @@ BSP v30 lumps, HUD sprite references, clean startup metadata and source-matched
 `network/delta.lst`. Unknown payload files fail validation. Dot-prefixed file
 synchronization temporary copies are ignored and never packaged.
 
+Git attributes disable text conversion for the complete mod directory, source
+startup templates and `network/delta.lst`. A Git autocrlf regression test checks
+that Windows checkouts preserve the same audited bytes as Linux.
+
 The migration script refuses to overwrite an existing Brig directory. To repeat
 the migration, restore `_folder/need restock` from the `source_commit` in the audit
 in a separate checkout, install ffmpeg, and run:
