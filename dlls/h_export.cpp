@@ -24,6 +24,7 @@
 #include "util.h"
 
 #include "cbase.h"
+#include "legacy_server_api.h"
 
 #undef DLLEXPORT
 #ifdef WIN32
@@ -34,6 +35,6 @@
 
 extern "C" void DLLEXPORT GiveFnptrsToDll(enginefuncs_t* pengfuncsFromEngine, globalvars_t* pGlobals)
 {
-	memcpy(&g_engfuncs, pengfuncsFromEngine, sizeof(enginefuncs_t));
+	CopyLegacyServerEngineFunctions(g_engfuncs, pengfuncsFromEngine);
 	gpGlobals = pGlobals;
 }

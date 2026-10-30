@@ -1,0 +1,26 @@
+name: Prepare brig assets
+on:
+  push:
+    branches: ['build/brig-standalone-release']
+    paths: ['tools/**', 'tests/**', '.github/workflows/prepare-brig.yml']
+permissions:
+  contents: write
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Migrate tracked staging resources and validate before removal
+        run: |
+          if test -d '_folder/need restock'; then
+            command -v ffmpeg
+            python -m unittest discover -s tests -v
+            python tools/migrate_brig.py --remove-source
+            git add -A -- _folder docs/brig-assets.json
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Prepare standalone brig assets and remove source staging directory'
+            git push origin HEAD:refs/heads/build/brig-standalone-release
+          fi
