@@ -37,6 +37,7 @@
 #include "tri.h"
 #include "vgui_TeamFortressViewport.h"
 #include "filesystem_utils.h"
+#include "legacy_client_api.h"
 
 cl_enginefunc_t gEngfuncs;
 CHud gHUD;
@@ -134,14 +135,10 @@ static bool CL_InitClient()
 
 int DLLEXPORT Initialize(cl_enginefunc_t* pEnginefuncs, int iVersion)
 {
-	gEngfuncs = *pEnginefuncs;
-
-	//	RecClInitialize(pEnginefuncs, iVersion);
-
-	if (iVersion != CLDLL_INTERFACE_VERSION)
+	if (nullptr == pEnginefuncs || iVersion != CLDLL_INTERFACE_VERSION)
 		return 0;
 
-	memcpy(&gEngfuncs, pEnginefuncs, sizeof(cl_enginefunc_t));
+	CopyLegacyClientEngineFunctions(gEngfuncs, pEnginefuncs);
 
 	const bool result = CL_InitClient();
 

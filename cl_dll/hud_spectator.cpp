@@ -806,7 +806,11 @@ void CHudSpectator::DirectorMessage(int iSize, void* pbuf)
 		break;
 
 	case DRC_CMD_STUFFTEXT:
-		gEngfuncs.pfnFilteredClientCmd(READ_STRING());
+		// Consume the message, but legacy engines have no filtered command
+		// callback. Never replace this with unrestricted pfnClientCmd.
+		string = READ_STRING();
+		if (gEngfuncs.pfnFilteredClientCmd)
+			gEngfuncs.pfnFilteredClientCmd(string);
 		break;
 
 	case DRC_CMD_CAMPATH:

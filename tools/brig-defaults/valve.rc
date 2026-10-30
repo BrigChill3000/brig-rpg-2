@@ -1,0 +1,5 @@
+// GoldSource startup. config.cfg and autoexec.cfg belong to the player.
+exec default.cfg
+exec config.cfg
+exec autoexec.cfg
+stuffcmds
