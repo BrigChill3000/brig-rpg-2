@@ -629,7 +629,7 @@ bool CHud::MsgFunc_SetFOV(const char* pszName, int iSize, void* pbuf)
 	BEGIN_READ(pbuf, iSize);
 
 	int newfov = READ_BYTE();
-	int def_fov = CVAR_GET_FLOAT("default_fov");
+	const int def_fov = (int)CVAR_GET_FLOAT("default_fov");
 
 	//Weapon prediction already takes care of changing the fog. ( g_lastFOV ).
 	//But it doesn't restore correctly so this still needs to be used
@@ -652,7 +652,7 @@ bool CHud::MsgFunc_SetFOV(const char* pszName, int iSize, void* pbuf)
 	// the clients fov is actually set in the client data update section of the hud
 
 	// Set a new sensitivity
-	if (m_iFOV == def_fov)
+	if (def_fov <= 0 || m_iFOV == def_fov)
 	{
 		// reset to saved sensitivity
 		m_flMouseSensitivity = 0;

@@ -52,9 +52,10 @@ void CHud::Think()
 	}
 
 	newfov = HUD_GetFOV();
+	const int defaultFov = (int)default_fov->value;
 	if (newfov == 0)
 	{
-		m_iFOV = default_fov->value;
+		m_iFOV = defaultFov;
 	}
 	else
 	{
@@ -63,8 +64,9 @@ void CHud::Think()
 
 	// the clients fov is actually set in the client data update section of the hud
 
-	// Set a new sensitivity
-	if (m_iFOV == default_fov->value)
+	// Set a new sensitivity. GoldSrc's scene FOV is integer-valued, so compare
+	// and scale against the same integer default used by SetFOV.
+	if (defaultFov <= 0 || m_iFOV == defaultFov)
 	{
 		// reset to saved sensitivity
 		m_flMouseSensitivity = 0;
@@ -72,7 +74,7 @@ void CHud::Think()
 	else
 	{
 		// set a new sensitivity that is proportional to the change from the FOV default
-		m_flMouseSensitivity = sensitivity->value * ((float)newfov / (float)default_fov->value) * CVAR_GET_FLOAT("zoom_sensitivity_ratio");
+		m_flMouseSensitivity = sensitivity->value * ((float)newfov / (float)defaultFov) * CVAR_GET_FLOAT("zoom_sensitivity_ratio");
 	}
 
 	// think about default fov
