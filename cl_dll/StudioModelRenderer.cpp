@@ -22,6 +22,7 @@
 #include "GameStudioModelRenderer.h"
 
 extern cvar_t* tfc_newmodels;
+extern cvar_t* cl_righthand;
 
 extern extra_player_info_t g_PlayerExtraInfo[MAX_PLAYERS_HUD + 1];
 
@@ -930,6 +931,16 @@ void CStudioModelRenderer::StudioSetupBones()
 
 	pbones = (mstudiobone_t*)((byte*)m_pStudioHeader + m_pStudioHeader->boneindex);
 
+	// Handedness is a local first-person presentation setting. Reflect only
+	// the root bones of the engine's viewmodel entity; child bones inherit the
+	// transform, so their complete animated hierarchy (hands and attached
+	// first-person model parts) follows the same side. Player/world entities
+	// never pass this identity check.
+	const bool mirrorViewModel =
+		m_pCurrentEntity == gEngfuncs.GetViewModel() &&
+		cl_righthand != nullptr &&
+		cl_righthand->value < 0.5f;
+
 	// bounds checking
 	if (m_pPlayerInfo)
 	{
@@ -989,6 +1000,19 @@ void CStudioModelRenderer::StudioSetupBones()
 
 		if (parent == -1)
 		{
+			if (mirrorViewModel)
+			{
+				// GoldSrc/CS-style handedness reflection is applied to the root
+				// bone basis, not to the model origin or player camera. Applying
+				// it before the hardware/software split lets both Studio paths
+				// build their normal bone/light transforms from the reflected
+				// root matrix, while retaining the model's original triangle data.
+				bonematrix[1][0] = -bonematrix[1][0];
+				bonematrix[1][1] = -bonematrix[1][1];
+				bonematrix[1][2] = -bonematrix[1][2];
+				bonematrix[1][3] = -bonematrix[1][3];
+			}
+
 			if (0 != IEngineStudio.IsHardware())
 			{
 				ConcatTransforms((*m_protationmatrix), bonematrix, (*m_pbonetransform)[i]);
