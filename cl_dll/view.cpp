@@ -20,6 +20,7 @@
 #include "hltv.h"
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 #include "Exports.h"
 
 int CL_IsThirdPerson();
