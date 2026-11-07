@@ -15,6 +15,8 @@ The first-person presentation controls belong to the **client DLL**. They are lo
 | `viewmodel_offset_z` | Moves the first-person entity along its camera-relative up axis. |
 | `cl_righthand` | Archived local preference: `1` is right-hand/default; `0` mirrors the first-person model hierarchy for left-hand presentation. |
 
+The "viewmodel" here means any Studio model rendered as the local first-person presentation entity, not just weapon models: it can include arms, held items, tools, props, and other first-person models. The settings are selected by the engine's `GetViewModel()` entity identity, not by a weapon class or model filename.
+
 The offset code modifies the engine's viewmodel entity origin, not `ref_params_s::vieworg`, the player's predicted origin, collision, or server coordinates. The renderer applies the FOV-like scale and handedness only when the current Studio entity is `gEngfuncs.GetViewModel()`. Player entities and ordinary world studio entities must remain unaffected.
 
 Hand reflection is performed on root-bone transforms so child bones inherit it with their animation. It does not replace model assets, edit model files, or change the local player's character model. Both hardware and software Studio transform paths should be checked in-game; the exact visual result remains dependent on the viewmodel asset's rig and authored orientation.
