@@ -101,7 +101,8 @@ static bool g_bViewInitialized = false;
 
 static float V_ClampViewModelValue(float value, float minimum, float maximum)
 {
-	if (value < minimum)
+	// The negated comparison also sends NaN to the safe minimum.
+	if (!(value >= minimum))
 		return minimum;
 	if (value > maximum)
 		return maximum;
@@ -786,6 +787,15 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	const float offsetX = V_ClampViewModelValue(viewmodel_offset_x->value, -2.0f, 2.5f);
 	const float offsetY = V_ClampViewModelValue(viewmodel_offset_y->value, -2.0f, 2.0f);
 	const float offsetZ = V_ClampViewModelValue(viewmodel_offset_z->value, -2.0f, 2.0f);
+
+	// Keep the archived CVAR values themselves inside their documented ranges,
+	// not just the values consumed by the transform.
+	if (offsetX != viewmodel_offset_x->value)
+		gEngfuncs.Cvar_SetValue("viewmodel_offset_x", offsetX);
+	if (offsetY != viewmodel_offset_y->value)
+		gEngfuncs.Cvar_SetValue("viewmodel_offset_y", offsetY);
+	if (offsetZ != viewmodel_offset_z->value)
+		gEngfuncs.Cvar_SetValue("viewmodel_offset_z", offsetZ);
 	float viewModelForward[3], viewModelRight[3], viewModelUp[3];
 	AngleVectors(view->angles, viewModelForward, viewModelRight, viewModelUp);
 
@@ -800,6 +810,9 @@ void V_CalcNormalRefdef(struct ref_params_s* pparams)
 	// independent weapon FOV without changing the world/camera FOV.
 	const float requestedViewModelFov =
 		V_ClampViewModelValue(viewmodel_fov->value, 54.0f, 68.0f);
+	if (requestedViewModelFov != viewmodel_fov->value)
+		gEngfuncs.Cvar_SetValue("viewmodel_fov", requestedViewModelFov);
+
 	const float referenceHalfAngle = 68.0f * 0.00872664625f;
 	const float requestedHalfAngle = requestedViewModelFov * 0.00872664625f;
 	view->curstate.scale = tanf(referenceHalfAngle) / tanf(requestedHalfAngle);
