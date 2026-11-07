@@ -95,6 +95,7 @@ cvar_t* viewmodel_fov;
 cvar_t* viewmodel_offset_x;
 cvar_t* viewmodel_offset_y;
 cvar_t* viewmodel_offset_z;
+cvar_t* cl_righthand;
 static bool g_bViewInitialized = false;
 
 static float V_ClampViewModelValue(float value, float minimum, float maximum)
@@ -114,26 +115,92 @@ static void V_SetViewModelPreset()
 		return;
 	}
 
-	const int preset = atoi(gEngfuncs.Cmd_Argv(1));
-	const char* commands = nullptr;
+	const char* argument = gEngfuncs.Cmd_Argv(1);
+	int preset = 0;
 
-	switch (preset)
+	// Accept only the three documented integer arguments. atoi() alone would
+	// also accept malformed strings such as "2junk" as preset 2.
+	if (0 == strcmp(argument, "1"))
+		preset = 1;
+	else if (0 == strcmp(argument, "2"))
+		preset = 2;
+	else if (0 == strcmp(argument, "3"))
+		preset = 3;
+	else
 	{
-	case 1:
-		commands = "viewmodel_offset_x 0\nviewmodel_offset_y 0\nviewmodel_offset_z 0\nviewmodel_fov 68\n";
-		break;
-	case 2:
-		commands = "viewmodel_offset_x 0.5\nviewmodel_offset_y -0.25\nviewmodel_offset_z -0.25\nviewmodel_fov 58\n";
-		break;
-	case 3:
-		commands = "viewmodel_offset_x -1\nviewmodel_offset_y -1\nviewmodel_offset_z -0.5\nviewmodel_fov 68\n";
-		break;
-	default:
 		gEngfuncs.Con_Printf("Usage: viewmodel_presetpos <1|2|3>\n");
 		return;
 	}
 
-	gEngfuncs.pfnClientCmd(commands);
+	float offsetX = 0.0f;
+	float offsetY = 0.0f;
+	float offsetZ = 0.0f;
+	float fov = 68.0f;
+
+	switch (preset)
+	{
+	case 1:
+		break;
+	case 2:
+		offsetX = 0.5f;
+		offsetY = -0.25f;
+		offsetZ = -0.25f;
+		fov = 58.0f;
+		break;
+	case 3:
+		offsetX = -1.0f;
+		offsetY = -1.0f;
+		offsetZ = -0.5f;
+		break;
+	}
+
+	// Set the registered CVARs directly, rather than queueing four console
+	// commands whose execution order depends on the engine command buffer.
+	gEngfuncs.Cvar_SetValue("viewmodel_offset_x", offsetX);
+	gEngfuncs.Cvar_SetValue("viewmodel_offset_y", offsetY);
+	gEngfuncs.Cvar_SetValue("viewmodel_offset_z", offsetZ);
+	gEngfuncs.Cvar_SetValue("viewmodel_fov", fov);
+	gEngfuncs.Con_Printf("Applied viewmodel preset %d. You can now adjust each CVAR individually.\n", preset);
+}
+
+static void V_SetViewModelHand(float rightHand)
+{
+	gEngfuncs.Cvar_SetValue("cl_righthand", rightHand);
+	gEngfuncs.Con_Printf("Viewmodel hand: %s\n", rightHand >= 0.5f ? "right" : "left");
+}
+
+static void V_ToggleViewModelHand()
+{
+	if (gEngfuncs.Cmd_Argc() != 1)
+	{
+		gEngfuncs.Con_Printf("Usage: switchhands\n");
+		return;
+	}
+
+	const float rightHand = (cl_righthand && cl_righthand->value >= 0.5f) ? 0.0f : 1.0f;
+	V_SetViewModelHand(rightHand);
+}
+
+static void V_SetLeftHand()
+{
+	if (gEngfuncs.Cmd_Argc() != 1)
+	{
+		gEngfuncs.Con_Printf("Usage: switchhandsleft\n");
+		return;
+	}
+
+	V_SetViewModelHand(0.0f);
+}
+
+static void V_SetRightHand()
+{
+	if (gEngfuncs.Cmd_Argc() != 1)
+	{
+		gEngfuncs.Con_Printf("Usage: switchhandsright\n");
+		return;
+	}
+
+	V_SetViewModelHand(1.0f);
 }
 
 // These cvars are not registered (so users can't cheat), so set the ->value field directly
@@ -1770,6 +1837,9 @@ void V_Init()
 	g_bViewInitialized = true;
 	gEngfuncs.pfnAddCommand("centerview", V_StartPitchDrift);
 	gEngfuncs.pfnAddCommand("viewmodel_presetpos", V_SetViewModelPreset);
+	gEngfuncs.pfnAddCommand("switchhands", V_ToggleViewModelHand);
+	gEngfuncs.pfnAddCommand("switchhandsleft", V_SetLeftHand);
+	gEngfuncs.pfnAddCommand("switchhandsright", V_SetRightHand);
 
 	scr_ofsx = gEngfuncs.pfnRegisterVariable("scr_ofsx", "0", 0);
 	scr_ofsy = gEngfuncs.pfnRegisterVariable("scr_ofsy", "0", 0);
@@ -1788,6 +1858,7 @@ void V_Init()
 	viewmodel_offset_x = gEngfuncs.pfnRegisterVariable("viewmodel_offset_x", "0", FCVAR_ARCHIVE);
 	viewmodel_offset_y = gEngfuncs.pfnRegisterVariable("viewmodel_offset_y", "0", FCVAR_ARCHIVE);
 	viewmodel_offset_z = gEngfuncs.pfnRegisterVariable("viewmodel_offset_z", "0", FCVAR_ARCHIVE);
+	cl_righthand = gEngfuncs.pfnRegisterVariable("cl_righthand", "1", FCVAR_ARCHIVE);
 }
 
 
